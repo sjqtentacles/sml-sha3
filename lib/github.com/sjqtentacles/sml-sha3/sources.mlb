@@ -1,0 +1,6 @@
+(* Source files for the sml-sha3 library, in dependency order. *)
+
+$(SML_LIB)/basis/basis.mlb
+
+sha3.sig
+sha3.sml
