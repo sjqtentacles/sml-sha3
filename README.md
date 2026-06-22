@@ -29,6 +29,10 @@ val out64 = Shake256.xof "data" 64   (* 64 bytes *)
 
 (* KMAC (keyed MAC, SP 800-185) *)
 val mac = Kmac128.mac {key = "secret", data = "msg", out = 32, custom = ""}
+
+(* Hex codec — inverse of the hex*/​*Hex output (round-trips with toHex). *)
+val raw' = Hex.fromHex (Sha3.hex256 "abc")   (* SOME (Sha3.digest256 "abc") *)
+val same = Hex.toHex (Sha3.digest256 "abc")  (* = Sha3.hex256 "abc"         *)
 ```
 
 ## Testing

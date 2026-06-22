@@ -22,6 +22,37 @@ in
     in f (String.size s - 1) "" end
 end
 
+(* Hex codec: `toHex` is the same lowercase encoding used by every `hex*` /
+   `*Hex` function below (it reuses `bytesToHex`); `fromHex` is its inverse. *)
+structure Hex : HEX =
+struct
+  fun toHex s = bytesToHex s
+
+  fun hexVal c =
+    if c >= #"0" andalso c <= #"9" then SOME (Char.ord c - Char.ord #"0")
+    else if c >= #"a" andalso c <= #"f" then SOME (Char.ord c - Char.ord #"a" + 10)
+    else if c >= #"A" andalso c <= #"F" then SOME (Char.ord c - Char.ord #"A" + 10)
+    else NONE
+
+  fun fromHex s =
+    let
+      val n = String.size s
+    in
+      if n mod 2 <> 0 then NONE
+      else
+        let
+          fun loop (i, acc) =
+            if i >= n then SOME (String.implode (List.rev acc))
+            else
+              case (hexVal (String.sub (s, i)), hexVal (String.sub (s, i + 1))) of
+                  (SOME hi, SOME lo) => loop (i + 2, Char.chr (hi * 16 + lo) :: acc)
+                | _ => NONE
+        in
+          loop (0, [])
+        end
+    end
+end
+
 (* ------------------------------------------------------------------ *)
 (* Keccak-f[1600]                                                       *)
 (* ------------------------------------------------------------------ *)

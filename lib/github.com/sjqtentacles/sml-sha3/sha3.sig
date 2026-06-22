@@ -28,3 +28,13 @@ sig
   val mac    : string -> string -> int -> string -> string
   val macHex : string -> string -> int -> string -> string
 end
+
+(* Hex codec: the inverse of the lowercase-hex output produced by every
+   `hex*` / `*Hex` function above. `toHex` matches that output exactly;
+   `fromHex` decodes it back to raw bytes (NONE on odd length or a non-hex
+   character). Round-trip: fromHex (toHex b) = SOME b. *)
+signature HEX =
+sig
+  val toHex   : string -> string
+  val fromHex : string -> string option
+end

@@ -130,6 +130,27 @@ struct
         , Kmac256.macHex key "My Tagged Application" 64 data )
     in () end
 
+  fun runHex () =
+    let
+      val () = section "Hex codec"
+      (* toHex matches the existing hex* encoders byte-for-byte *)
+      val () = checkString "toHex(digest256 abc) = hex256 abc"
+        (Sha3.hex256 "abc", Hex.toHex (Sha3.digest256 "abc"))
+      val () = checkString "toHex(shake128 abc) = hashHex abc"
+        (Shake128.hashHex 32 "abc", Hex.toHex (Shake128.hash 32 "abc"))
+      (* round-trip: fromHex (hex* x) = SOME (digest* x) *)
+      val () = check "fromHex(hex256 abc) = SOME (digest256 abc)"
+        (Hex.fromHex (Sha3.hex256 "abc") = SOME (Sha3.digest256 "abc"))
+      val () = check "fromHex(hashHex shake256) = SOME bytes"
+        (Hex.fromHex (Shake256.hashHex 32 "") = SOME (Shake256.hash 32 ""))
+      (* fixed NIST vector decodes to the known byte digest *)
+      val () = check "fromHex(toHex b) = SOME b"
+        (Hex.fromHex (Hex.toHex (Sha3.digest512 "abc")) = SOME (Sha3.digest512 "abc"))
+      (* malformed input *)
+      val () = check "fromHex odd-length = NONE" (Hex.fromHex "abc" = NONE)
+      val () = check "fromHex non-hex = NONE" (Hex.fromHex "zz" = NONE)
+    in () end
+
   fun run () =
     ( runSha3_256 ()
     ; runSha3_224 ()
@@ -137,5 +158,6 @@ struct
     ; runSha3_512 ()
     ; runShake128 ()
     ; runShake256 ()
-    ; runKmac () )
+    ; runKmac ()
+    ; runHex () )
 end
