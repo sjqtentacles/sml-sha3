@@ -3,6 +3,7 @@
 #   make test       build + run tests under MLton (default)
 #   make test-poly  build + run tests under Poly/ML
 #   make all-tests  run the suite under both compilers
+#   make example    build + run the demo
 #   make clean      remove build artifacts
 
 MLTON      ?= mlton
@@ -11,7 +12,7 @@ LIBDIR     := lib/github.com/sjqtentacles/sml-sha3
 TEST_MLB   := test/sources.mlb
 SRCS       := $(wildcard $(LIBDIR)/*.sml $(LIBDIR)/*.sig) $(wildcard test/*.sml) $(TEST_MLB) $(LIBDIR)/sources.mlb
 
-.PHONY: all test poly test-poly all-tests clean
+.PHONY: all test poly test-poly all-tests example clean
 
 all: $(BIN)/test-mlton
 
@@ -30,6 +31,12 @@ test-poly: $(BIN)/test-poly
 	$(BIN)/test-poly
 
 all-tests: test test-poly
+
+example: $(BIN)/demo
+	./$(BIN)/demo
+
+$(BIN)/demo: $(SRCS) examples/demo.sml examples/sources.mlb | $(BIN)
+	$(MLTON) -output $@ examples/sources.mlb
 
 $(BIN):
 	mkdir -p $(BIN)
