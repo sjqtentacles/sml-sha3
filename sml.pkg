@@ -1,4 +1,5 @@
 package github.com/sjqtentacles/sml-sha3
 
 require {
+  github.com/sjqtentacles/sml-check
 }

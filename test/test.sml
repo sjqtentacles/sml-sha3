@@ -151,6 +151,50 @@ struct
       val () = check "fromHex non-hex = NONE" (Hex.fromHex "zz" = NONE)
     in () end
 
+  fun runProperties () =
+    let
+      val () = section "SHA3: properties (sml-check)"
+
+      (* Generator: arbitrary byte strings, 0-300 bytes. *)
+      val byteGen = Check.map Char.chr (Check.choose (0, 255))
+      val byteStringGen =
+        Check.bind (Check.choose (0, 300)) (fn n =>
+          Check.map String.implode (Check.listOfLen n byteGen))
+
+      fun showBytes s = Int.toString (String.size s) ^ " bytes"
+      fun showBytesPair (s1, s2) =
+        "(" ^ showBytes s1 ^ ", " ^ showBytes s2 ^ ")"
+
+      val () =
+        check "prop: digest256 is deterministic"
+          (case Check.quickCheck
+                  (Check.forAll byteStringGen showBytes
+                     (fn s => Sha3.digest256 s = Sha3.digest256 s)) of
+               Check.Passed _ => true
+             | Check.Failed _ => false)
+
+      val () =
+        check "prop: digest256/hex256 length is always fixed (32 bytes / 64 hex chars)"
+          (case Check.quickCheck
+                  (Check.forAll byteStringGen showBytes
+                     (fn s =>
+                        String.size (Sha3.digest256 s) = 32 andalso
+                        String.size (Sha3.hex256 s) = 64)) of
+               Check.Passed _ => true
+             | Check.Failed _ => false)
+
+      val () =
+        check "prop: different inputs (almost always) hash differently"
+          (case Check.quickCheck
+                  (Check.forAll
+                     (Check.tuple2 (byteStringGen, byteStringGen))
+                     showBytesPair
+                     (fn (s1, s2) =>
+                        s1 = s2 orelse Sha3.digest256 s1 <> Sha3.digest256 s2)) of
+               Check.Passed _ => true
+             | Check.Failed _ => false)
+    in () end
+
   fun run () =
     ( runSha3_256 ()
     ; runSha3_224 ()
@@ -159,5 +203,6 @@ struct
     ; runShake128 ()
     ; runShake256 ()
     ; runKmac ()
-    ; runHex () )
+    ; runHex ()
+    ; runProperties () )
 end
