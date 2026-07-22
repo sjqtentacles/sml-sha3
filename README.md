@@ -1,5 +1,7 @@
 # sml-sha3
 
+[![CI](https://github.com/sjqtentacles/sml-sha3/actions/workflows/ci.yml/badge.svg)](https://github.com/sjqtentacles/sml-sha3/actions/workflows/ci.yml)
+
 Keccak-f[1600] sponge, SHA3-224/256/384/512, SHAKE128/SHAKE256 XOF, and KMAC in pure Standard ML
 
 ## Installation
